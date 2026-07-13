@@ -72,8 +72,7 @@ app.post("/request-login", async (req, res) => {
         approved: false
     };
 
-    const approveLink =
-`http://127.0.0.1:3000/approve/${token}`;
+    const approveLink = `https://geocampus-api.onrender.com/approve/${token}`;
 
     const mail = new SibApiV3Sdk.SendSmtpEmail();
 
@@ -166,6 +165,10 @@ app.get("/check-login/:token", (req, res) => {
 
 });
 
-app.listen(3000, () => {
-    console.log("Server running on http://127.0.0.1:3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+
+    console.log(`Server running on port ${PORT}`);
+
 });
