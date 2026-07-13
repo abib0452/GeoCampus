@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Settings</title>
+
+<style>
+
+body{
+
+    margin:0;
+
+    font-family:'Segoe UI',sans-serif;
+
+    background:linear-gradient(
+        135deg,
+        #FFF8F0 0%,
+        #F8E9D2 50%,
+        #E9D5B5 100%
+    );
+
+}
+
+.header{
+
+    background:#8B6B00;
+
+    color:white;
+
+    padding:22px;
+
+    font-size:28px;
+
+    font-weight:600;
+
+    text-align:center;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+
+}
+
+.container{
+
+    max-width:520px;
+
+    margin:40px auto;
+
+}
+
+.item{
+
+    background:rgba(255,255,255,.75);
+
+    backdrop-filter:blur(18px);
+
+    margin:18px;
+
+    padding:20px;
+
+    border-radius:16px;
+
+    border:2px solid #D4AF37;
+
+    cursor:pointer;
+
+    font-size:19px;
+
+    color:#5A4300;
+
+    font-weight:600;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,.10),
+    0 0 12px rgba(212,175,55,.15);
+
+    transition:.3s;
+
+}
+
+.item:hover{
+
+    background:#FFFDF8;
+
+    transform:translateY(-3px);
+
+    box-shadow:0 10px 25px rgba(212,175,55,.35);
+
+}
+
+.logout{
+
+    background:#8B0000;
+
+    color:white;
+
+    border:none;
+
+}
+
+.logout:hover{
+
+    background:#B22222;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+⚙️ Settings
+
+</div>
+
+<div class="container">
+
+<div class="item" onclick="window.location.href='profile.html'">
+ Profile
+</div>
+
+<div class="item" onclick="window.location.href='forgotpassword.html'">
+ Change Password
+</div>
+
+<div class="item" onclick="toggleNotification()">
+ Notifications
+<span id="notifyStatus" style="float:right;">ON</span>
+</div>
+
+<div class="item logout"
+onclick="logout()">
+
+ Logout
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+import {
+getAuth,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+
+apiKey:"AIzaSyAvso-H8NVsXxpULHOplG_WketgfI4ErEk",
+authDomain:"geocampus-2026.firebaseapp.com",
+projectId:"geocampus-2026",
+storageBucket:"geocampus-2026.firebasestorage.app",
+messagingSenderId:"1090387175062",
+appId:"1:1090387175062:web:24abb9b76e8ac2bcc084b7"
+
+};
+
+const app=initializeApp(firebaseConfig);
+
+const auth=getAuth(app);
+
+window.logout=async function(){
+
+await signOut(auth);
+
+alert("Logged Out Successfully");
+
+window.location.href="login.html";
+
+}
+
+
+
+if(localStorage.getItem("notification")==null){
+
+localStorage.setItem("notification","ON");
+
+}
+
+updateNotification();
+
+window.toggleNotification=function(){
+
+let status=localStorage.getItem("notification");
+
+if(status==="ON"){
+
+localStorage.setItem("notification","OFF");
+
+}
+else{
+
+localStorage.setItem("notification","ON");
+
+}
+
+updateNotification();
+
+}
+
+function updateNotification(){
+
+document.getElementById("notifyStatus").innerHTML=
+localStorage.getItem("notification");
+
+}
+
+window.showSession=function(){
+
+const user=auth.currentUser;
+
+if(user){
+
+alert(
+"Current Login Session\n\n"+
+"Email : "+user.email+
+"\n\nStatus : Active"
+);
+
+}
+else{
+
+alert("No Active Session Found.");
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>

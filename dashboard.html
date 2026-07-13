@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GeoCampus Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<button id="settingsBtn" onclick="openSettings()">
+⚙️
+</button>
+
+<div class="mainContent">
+
+    <!-- Search -->
+
+    <div class="topbar">
+
+<input
+type="text"
+id="searchUser"
+placeholder="SEARCH USER ID (IN CAPS)"
+style="text-transform:uppercase;"
+oninput="this.value=this.value.toUpperCase()">
+
+<button onclick="searchUser()">
+
+🔍
+
+</button>
+
+</div>
+
+    <!-- Map -->
+
+    <div id="map"></div>
+
+    <!-- User Information -->
+
+    <div class="info">
+
+        <h3 id="userId">
+            👤 User : --
+        </h3>
+
+        <h3 id="status">
+            🟢 Status : --
+        </h3>
+
+        <h3 id="searchResult">
+    🔍 Search : --
+</h3>
+
+        <h3 id="distance">
+            📍 Distance : --
+        </h3>
+
+        <h3 id="lastUpdated">
+            🕒 Last Updated : --
+        </h3>
+
+        <h3 id="campusStatus">
+            🏫 Campus : --
+        </h3>
+
+    </div>
+
+</div>
+    <script type="module">
+
+  import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+import {
+    getFirestore,
+    doc,
+    updateDoc,
+    collection,
+    query,
+    where,
+    getDocs
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+import {
+    getAuth,
+    signOut
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAvso-H8NVsXxpULHOplG_WketgfI4ErEk",
+  authDomain: "geocampus-2026.firebaseapp.com",
+  projectId: "geocampus-2026",
+  storageBucket: "geocampus-2026.firebasestorage.app",
+  messagingSenderId: "1090387175062",
+  appId: "1:1090387175062:web:24abb9b76e8ac2bcc084b7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+let myLat;
+let myLon;
+// College Geo-Fence Coordinates
+const collegeLat = 9.91295;
+const collegeLon = 78.14790;
+const campusRadius = 1; // 1 KM radius
+
+let map;
+let myMarker;
+let userMarker;
+let campusPolygon;
+
+
+function getLocation(){
+
+    if(!navigator.geolocation){
+
+        alert(
+        "Geolocation is not supported in this browser");
+        return;
+    }
+
+    navigator.permissions.query({name:"geolocation"}).then(function(result){
+
+    if(result.state === "denied"){
+
+        alert("📍 Please Enable Location Permission and Reload the App");
+        return;
+    }
+
+});
+
+    navigator.geolocation.watchPosition(
+
+        function(position){
+
+            let latitude =
+            position.coords.latitude;
+
+            let longitude =
+            position.coords.longitude;
+
+            myLat = latitude;
+            myLon = longitude;
+
+            
+            // Calculate distance from college
+
+            
+            
+        
+            if(!map){
+
+    map = new google.maps.Map(
+        document.getElementById("map"),
+        {
+            zoom:18,
+
+            styles: [
+    {
+        elementType: "geometry",
+        stylers: [{ color: "#1f2937" }]
+    },
+    {
+        elementType: "labels.text.stroke",
+        stylers: [{ color: "#1f2937" }]
+    },
+    {
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#d4af37" }]
+    },
+    {
+        featureType: "road",
+        elementType: "geometry",
+        stylers: [{ color: "#374151" }]
+    },
+    {
+        featureType: "water",
+        elementType: "geometry",
+        stylers: [{ color: "#0f172a" }]
+    },
+    {
+        featureType: "poi",
+        stylers: [{ visibility: "off" }]
+    },
+    {
+        featureType: "transit",
+        stylers: [{ visibility: "off" }]
+    }],
+
+            center:{
+                lat:collegeLat,
+                lng:collegeLon
+            },
+
+            mapTypeId:'hybrid',
+
+            mapTypeControl:true,
+
+            zoomControl:true,
+
+            fullscreenControl:true
+        }
+    );
+}
+
+if(!campusPolygon){
+
+    const collegeBoundary = [
+    {lat: 9.9118797, lng: 78.1483359},
+    {lat: 9.9120994, lng: 78.1480851},
+    {lat: 9.9119960, lng: 78.1477877},
+    {lat: 9.9120796, lng: 78.1474216},
+    {lat: 9.9124419, lng: 78.1465140},
+    {lat: 9.9131770, lng: 78.1468027},
+    {lat: 9.9142349, lng: 78.1471001},
+    {lat: 9.9134307, lng: 78.1484231},
+    {lat: 9.9129710, lng: 78.1489753},
+    {lat: 9.9125475, lng: 78.1490517},
+    {lat: 9.9120763, lng: 78.1489106},
+    {lat: 9.9120710, lng: 78.1486367},
+    {lat: 9.9118797, lng: 78.1483359}
+];
+    campusPolygon =
+    new google.maps.Polygon({
+
+        paths: collegeBoundary,
+
+        strokeColor: "#00FF00",
+        strokeOpacity: 1,
+        strokeWeight: 3,
+
+        fillColor: "#00FF00",
+        fillOpacity: 0.20
+    });
+
+    campusPolygon.setMap(map);
+    
+}
+
+const myLocation = new google.maps.LatLng(
+    myLat,
+    myLon
+);
+
+const insideCampus =
+google.maps.geometry.poly.containsLocation(
+    myLocation,
+    campusPolygon
+);
+
+if(insideCampus){
+
+    document.getElementById("campusStatus").innerHTML =
+    "🏫 Campus : ✅ Inside Campus";
+
+}else{
+
+    document.getElementById("campusStatus").innerHTML =
+    "🏫 Campus : ❌ Outside Campus";
+}
+
+
+
+map.setZoom(17);
+
+if(myMarker){
+    myMarker.setMap(null);
+}
+
+myMarker = new google.maps.Marker({
+
+    position:{
+        lat: myLat,
+        lng: myLon
+    },
+
+    map: map,
+
+    title: "My Location",
+    icon:{ url:"https://maps.google.com/mapfiles/ms/icons/blue-dot.png"}
+});
+
+
+            const user = auth.currentUser;
+            
+
+ if(user){
+    
+
+    updateDoc(
+doc(db,"users",user.uid),
+{
+    latitude: latitude,
+    longitude: longitude,
+    status: "Online",
+    campusStatus: insideCampus ? "Inside" : "Outside",
+    lastUpdated: new Date().toLocaleTimeString()
+})
+    .then(() =>{
+        
+    })
+    .catch((error) => {
+        alert(error.message);
+    });
+}else{
+    alert("User not logged in");
+}
+
+
+
+
+
+            
+        },
+
+        function(error){
+
+            alert(
+            "Please turn ON your device location");
+        },
+{
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0
+}
+    );
+}
+
+document.querySelector(".info").style.display = "block";
+
+async function searchUser(){
+
+    document.getElementById("searchResult").innerHTML =
+"⏳ Searching...";
+
+    let searchId =
+    document.getElementById(
+        "searchUser"
+    ).value.trim();
+
+    if(searchId === ""){
+        alert("Enter User ID");
+        return;
+    }
+
+    if(myLat === undefined || myLon === undefined){
+        alert("Waiting for your location...");
+        return;
+    }
+
+    const q = query(
+        collection(db,"users"),
+        where("userId","==",searchId)
+    );
+
+    const querySnapshot =
+    await getDocs(q);
+
+   if(querySnapshot.empty){
+
+    document.querySelector(".info").style.display = "block";
+
+    document.getElementById("userId").innerHTML =
+    "👤 User : " + searchId;
+
+    document.getElementById("searchResult").innerHTML =
+    "🔍 Search : ❌ User Not Found";
+
+    document.getElementById("status").innerHTML =
+    "🔴 Status : Not Registered";
+
+    document.getElementById("distance").innerHTML =
+    "📍 Distance : Not Available";
+
+    document.getElementById("lastUpdated").innerHTML =
+    "🕒 Last Updated : Not Available";
+
+    document.getElementById("campusStatus").innerHTML =
+    "🏫 Campus : Not Available";
+
+    if(userMarker){
+        userMarker.setMap(null);
+        userMarker = null;
+    }
+
+    return;
+}
+    querySnapshot.forEach((userDoc)=>{
+
+    
+
+        document.querySelector(".info").style.display = "block";
+
+        let data = userDoc.data();
+
+        let userLat =
+        data.latitude;
+
+        let userLon =
+        data.longitude;
+
+        const userLocation = new google.maps.LatLng(
+    userLat,
+    userLon
+);
+
+const userInsideCampus =
+google.maps.geometry.poly.containsLocation(
+    userLocation,
+    campusPolygon
+);
+
+        let userStatus = data.status || "Offline";
+
+let lastUpdated =
+data.lastUpdated || "--";
+
+let campus =
+data.campusStatus || "--";
+
+       let distance =
+Math.sqrt(
+    Math.pow(userLat - myLat, 2) +
+    Math.pow(userLon - myLon, 2)
+) * 111;
+
+document.getElementById("searchResult").innerHTML =
+"🔍 Search : ✅ User Found";
+
+document.getElementById("status").innerHTML =
+(userStatus === "Online")
+? "🟢 Online"
+: "🔴 Offline";
+
+// Distance
+if(userStatus === "Online"){
+
+    document.getElementById("distance").innerHTML =
+    "📍 Distance : " +
+    distance.toFixed(2) +
+    " KM";
+
+}else{
+
+    document.getElementById("distance").innerHTML =
+    "📍 Distance : Not Available";
+
+}
+        document.getElementById(
+    "userId"
+).innerHTML =
+"👤 User : " + searchId;
+
+document.getElementById(
+    "lastUpdated"
+).innerHTML =
+"🕒 Last Updated : " +
+lastUpdated;
+
+if(userStatus === "Online"){
+
+    document.getElementById("campusStatus").innerHTML =
+    userInsideCampus
+    ? "🏫 Campus : ✅ Inside Campus"
+    : "🏫 Campus : ❌ Outside Campus";
+
+}else{
+
+    document.getElementById("campusStatus").innerHTML =
+    "🏫 Campus : Not Available";
+
+}
+
+        // remove old markers
+        if(myMarker){
+            myMarker.setMap(null);
+        }
+
+        if(userMarker){
+            userMarker.setMap(null);
+        }
+
+        // my marker
+        myMarker = new google.maps.Marker({
+
+    position:{
+        lat: myLat,
+        lng: myLon
+    },
+
+    map: map,
+
+    title: "My Location",
+
+    icon:{ url:"https://maps.google.com/mapfiles/ms/icons/blue-dot.png"}
+});
+
+
+        // searched user marker
+      if(userInsideCampus){
+
+    userMarker = new google.maps.Marker({
+
+        position:{
+            lat:userLat,
+            lng:userLon
+        },
+
+        map:map,
+
+        title:"User location",
+
+        icon:{
+    url:"https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+}
+
+    });
+
+}else{
+
+    alert("❌ User is Outside College Campus");
+
+}
+
+        // zoom both markers
+        const bounds =
+        new google.maps.LatLngBounds();
+
+        bounds.extend({
+            lat:myLat,
+            lng:myLon
+        });
+
+        bounds.extend({
+            lat:userLat,
+            lng:userLon
+        });
+
+        map.fitBounds(bounds);
+
+        map.panTo({
+    lat: userLat,
+    lng: userLon
+});
+
+        // directions
+       
+
+    });
+}
+
+async function logoutUser(){
+
+    const user = auth.currentUser;
+
+    if(user){
+
+        await updateDoc(
+            doc(db,"users",user.uid),
+            {
+                status: "Offline"
+            }
+        );
+
+        await signOut(auth);
+
+        alert("Logged Out Successfully");
+
+        window.location.href = "login.html";
+
+    }
+
+}
+
+window.getLocation = getLocation;
+window.searchUser = searchUser;
+
+
+
+window.logoutUser = logoutUser;
+
+window.addEventListener("beforeunload", async function () {
+
+    const user = auth.currentUser;
+
+    if(user){
+
+        await updateDoc(
+            doc(db,"users",user.uid),
+            {
+                status:"Offline"
+            }
+        );
+
+    }
+
+});
+
+window.onload = function(){
+
+    if(confirm("📍 Please Enable Location to Continue")){
+
+        getLocation();
+
+    }
+
+};
+
+function toggleSidebar(){
+
+    const sidebar =
+    document.getElementById("sidebar");
+
+    const main =
+    document.querySelector(".mainContent");
+
+    sidebar.classList.toggle("closed");
+
+    main.classList.toggle("full");
+
+}
+
+window.toggleSidebar = toggleSidebar;
+function openSettings(){
+
+    window.location.href = "settings.html";
+
+}
+
+window.openSettings = openSettings;
+</script>
+
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnJ4icJBQFsGx3CuhXJLecMYn_XKzpsvs&libraries=geometry"></script>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Profile</title>
+
+    <style>
+
+        body{
+
+    margin:0;
+
+    font-family:'Segoe UI',sans-serif;
+
+    background:linear-gradient(
+        135deg,
+        #FFF8F0 0%,
+        #F8E9D2 50%,
+        #E9D5B5 100%
+    );
+
+}
+
+        .header{
+
+    background:#8B6B00;
+
+    color:white;
+
+    padding:22px;
+
+    text-align:center;
+
+    font-size:30px;
+
+    font-weight:600;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+
+}
+
+        .container{
+
+    width:520px;
+
+    margin:40px auto;
+
+    background:rgba(255,255,255,.75);
+
+    backdrop-filter:blur(18px);
+
+    padding:35px;
+
+    border-radius:20px;
+
+    border:2px solid #D4AF37;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.12),
+    0 0 15px rgba(212,175,55,.20);
+
+}
+
+        h2{
+
+    text-align:center;
+
+    margin-bottom:30px;
+
+    color:#8B6B00;
+
+    font-size:30px;
+
+}
+
+        .row{
+
+    margin:20px 0;
+
+    padding:15px;
+
+    background:#FFFDF8;
+
+    border:1px solid #E7D3A7;
+
+    border-radius:12px;
+
+    font-size:18px;
+
+    color:#333;
+
+}
+
+        .label{
+
+    font-weight:bold;
+
+    color:#8B6B00;
+
+}
+
+        button{
+
+    width:100%;
+
+    height:55px;
+
+    margin-top:25px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#D4AF37;
+
+    color:#1E293B;
+
+    font-size:18px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+button:hover{
+
+    background:#F4C430;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 18px rgba(212,175,55,.35);
+
+}
+    </style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+ GeoCampus
+
+</div>
+
+<div class="container">
+
+<h2>👤 My Profile</h2>
+
+
+
+<div class="row">
+<span class="label">Email :</span>
+<span id="email">Loading...</span>
+</div>
+
+<div class="row">
+<span class="label">User ID :</span>
+<span id="userId">Loading...</span>
+</div>
+
+
+
+<div class="row">
+<span class="label">Role :</span>
+<span id="role">Loading...</span>
+</div>
+
+<button onclick="history.back()">
+⬅ Back to Dashboard
+</button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+import {
+getFirestore,
+doc,
+getDoc
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAvso-H8NVsXxpULHOplG_WketgfI4ErEk",
+  authDomain: "geocampus-2026.firebaseapp.com",
+  projectId: "geocampus-2026",
+  storageBucket: "geocampus-2026.firebasestorage.app",
+  messagingSenderId: "1090387175062",
+  appId: "1:1090387175062:web:24abb9b76e8ac2bcc084b7"
+};
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const auth = getAuth(app);
+
+console.log(auth.currentUser);
+
+onAuthStateChanged(auth, async(user)=>{
+
+    console.log(user);
+
+if(!user){
+
+window.location.href="login.html";
+return;
+
+}
+
+document.getElementById("email").innerHTML=user.email;
+
+const docRef=doc(db,"users",user.uid);
+
+const docSnap=await getDoc(docRef);
+
+if(docSnap.exists()){
+
+const data=docSnap.data();
+
+
+document.getElementById("userId").innerHTML=data.userId || "--";
+
+document.getElementById("role").innerHTML=data.userType || "--";
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
