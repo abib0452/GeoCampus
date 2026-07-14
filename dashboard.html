@@ -360,27 +360,23 @@ async function searchUser(){
     const querySnapshot =
     await getDocs(q);
 
-   if(querySnapshot.empty){
+  if(querySnapshot.empty){
 
     document.querySelector(".info").style.display = "block";
 
-    document.getElementById("userId").innerHTML =
-    "👤 User : " + searchId;
+    document.getElementById("userId").innerHTML = "";
 
-    document.getElementById("searchResult").innerHTML =
-    "🔍 Search : ❌ User Not Found";
+    document.getElementById("searchResult").innerHTML = "";
 
     document.getElementById("status").innerHTML =
-    "🔴 Status : Not Registered";
+    "🔴 Status : User Not Registered";
 
-    document.getElementById("distance").innerHTML =
-    "📍 Distance : Not Available";
+    document.getElementById("distance").innerHTML = "";
 
-    document.getElementById("lastUpdated").innerHTML =
-    "🕒 Last Updated : Not Available";
+    document.getElementById("lastUpdated").innerHTML = "";
 
-    document.getElementById("campusStatus").innerHTML =
-    "🏫 Campus : Not Available";
+    document.getElementById("campusStatus").innerHTML = "";
+
 
     if(userMarker){
         userMarker.setMap(null);

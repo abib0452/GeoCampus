@@ -397,3 +397,39 @@ button{
     height:100%;
 
 }
+
+.password-box{
+
+    position:relative;
+
+    width:100%;
+
+}
+
+.password-box input{
+
+    width:100%;
+    padding:14px;
+    padding-right:45px;
+
+}
+
+.toggle-password{
+
+    position:absolute;
+
+    right:15px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    cursor:pointer;
+
+    font-size:20px;
+
+    color:#8B6B00;
+
+    user-select:none;
+
+}
