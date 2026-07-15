@@ -102,6 +102,22 @@ body{
 
 }
 
+.delete{
+
+    background:#B22222;
+
+    color:white;
+
+    border:none;
+
+}
+
+.delete:hover{
+
+    background:#DC143C;
+
+}
+
 </style>
 
 </head>
@@ -129,6 +145,13 @@ body{
 <span id="notifyStatus" style="float:right;">ON</span>
 </div>
 
+<div class="item delete"
+onclick="deleteAccount()">
+
+ Delete Account
+
+</div>
+
 <div class="item logout"
 onclick="logout()">
 
@@ -144,8 +167,18 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
 import {
+getFirestore,
+doc,
+deleteDoc
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+import {
 getAuth,
-signOut
+signOut,
+deleteUser,
+EmailAuthProvider,
+reauthenticateWithCredential
 }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
@@ -163,6 +196,8 @@ appId:"1:1090387175062:web:24abb9b76e8ac2bcc084b7"
 const app=initializeApp(firebaseConfig);
 
 const auth=getAuth(app);
+
+const db = getFirestore(app);
 
 window.logout=async function(){
 
@@ -228,6 +263,70 @@ else{
 alert("No Active Session Found.");
 
 }
+
+}
+
+window.deleteAccount = async function(){
+
+    const confirmDelete = confirm(
+        "⚠️ Are you sure you want to delete your account?\n\nThis action cannot be undone."
+    );
+
+    if(!confirmDelete){
+        return;
+    }
+
+    try{
+
+        const user = auth.currentUser;
+
+        if(!user){
+
+            alert("No user is logged in.");
+            return;
+
+        }
+
+        // Delete Firestore document
+        // Ask password for verification
+const password = prompt(
+    "🔒 Please enter your password to confirm account deletion:"
+);
+
+if(!password){
+    alert("Password is required.");
+    return;
+}
+
+// Reauthenticate user
+const credential = EmailAuthProvider.credential(
+    user.email,
+    password
+);
+
+await reauthenticateWithCredential(
+    user,
+    credential
+);
+
+// Delete Firestore document
+await deleteDoc(
+    doc(db, "users", user.uid)
+);
+
+// Delete Firebase Authentication account
+await deleteUser(user);
+
+        alert("✅ Account Deleted Successfully.");
+
+        window.location.href = "login.html";
+
+    }catch(error){
+
+        console.log(error);
+        alert(error.message);
+
+    }
 
 }
 
