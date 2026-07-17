@@ -1,5 +1,13 @@
 require("dotenv").config();
 
+const { initializeApp, cert } = require("firebase-admin/app");
+
+const serviceAccount = require("./admin.json");
+
+initializeApp({
+    credential: cert(serviceAccount)
+});
+
 const express = require("express");
 const cors = require("cors");
 const SibApiV3Sdk = require("sib-api-v3-sdk");
@@ -165,7 +173,43 @@ app.get("/check-login/:token", (req, res) => {
 
 });
 
+
+
+
+const { getAuth } = require("firebase-admin/auth");
+
+app.post("/reset-password", async (req, res) => {
+
+    const { email, newPassword } = req.body;
+
+    try {
+
+        const user = await getAuth().getUserByEmail(email);
+
+        await getAuth().updateUser(user.uid, {
+            password: newPassword
+        });
+
+        res.json({
+            success: true,
+            message: "Password updated successfully"
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+
+});
+
 const PORT = process.env.PORT || 3000;
+
 
 app.listen(PORT, () => {
 
