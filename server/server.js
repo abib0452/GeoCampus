@@ -210,6 +210,10 @@ app.post("/reset-password", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
+app.get("/test-reset", (req, res) => {
+    res.json({ ok: true });
+});
+
 
 app.listen(PORT, () => {
 
