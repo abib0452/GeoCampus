@@ -121,17 +121,7 @@ input::placeholder{
 
 }
 
-input:focus{
 
-    background:#ffffff;
-
-    border-color:#C89B2B;
-
-    transform:scale(1.02);
-
-    box-shadow:0 0 0 4px rgba(212,175,55,.18);
-
-}
 
 button{
 
@@ -203,16 +193,26 @@ button:hover{
 @media (max-width:768px){
 
     body{
-        padding:15px;
-        align-items:flex-start;
-        justify-content:flex-start;
-    }
 
-    .login-box{
+    padding:20px;
+
+    justify-content:center;
+
+    align-items:center;
+
+    overflow-y:auto;
+
+}
+   .login-box{
+
     width:100%;
-    max-width:100%;
-    padding:30px 20px;
-    border-radius:18px;
+
+    max-width:420px;
+
+    padding:30px 22px;
+
+    border-radius:20px;
+
 }
 
     h1{
@@ -224,14 +224,20 @@ button:hover{
     }
 
     input{
-        height:55px;
-        font-size:18px;
-    }
+
+    height:52px;
+
+    font-size:16px;
+
+}
 
     button{
-        height:55px;
-        font-size:18px;
-    }
+
+    height:52px;
+
+    font-size:17px;
+
+}
 
     .register{
         font-size:16px;
@@ -253,37 +259,10 @@ button:hover{
 
 }
 
-.toggle-password{
 
-    position:absolute;
-
-    top:50%;
-
-    right:18px;
-
-    transform:translateY(-50%);
-
-    cursor:pointer;
-
-    font-size:20px;
-
-    user-select:none;
-
-    color:#8B6B00;
-
-    transition:.3s;
-
-}
-
-.toggle-password:hover{
-
-    transform:translateY(-50%) scale(1.15);
-
-    color:#C89B2B;
-
-}
 
     </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
@@ -310,7 +289,7 @@ button:hover{
         id="password"
         placeholder="Enter Geocampus Password">
 
-    <span class="toggle-password" onclick="togglePassword()">👁️</span>
+   
 
 </div>
 
@@ -487,37 +466,22 @@ window.login = login;
 
 window.togglePassword = function(){
 
-    const password =
-    document.getElementById("password");
+    const password = document.getElementById("password");
+    const eyeIcon = document.getElementById("eyeIcon");
 
-    if(password.type==="password"){
+    if(password.type === "password"){
 
-        password.type="text";
+        password.type = "text";
+        eyeIcon.textContent = "visibility_off";
 
     }else{
 
-        password.type="password";
+        password.type = "password";
+        eyeIcon.textContent = "visibility";
 
     }
 
 }
-
-function togglePassword(){
-
-    const password=document.getElementById("password");
-
-    if(password.type==="password"){
-
-        password.type="text";
-
-    }else{
-
-        password.type="password";
-
-    }
-
-}
-
         
     </script>
 

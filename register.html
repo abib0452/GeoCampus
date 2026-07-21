@@ -328,19 +328,37 @@ Resend OTP (60)
 
 <div id="passwordSection" style="display:none;">
 
-    <input
-        type="password"
-        id="password"
-        placeholder="Password">
+    <div class="password-box">
 
-    <br><br>
+<input
+type="password"
+id="password"
+placeholder="Password">
 
-    <input
-        type="password"
-        id="confirmPassword"
-        placeholder="Confirm Password">
+<span
+class="toggle-password"
+onclick="togglePassword('password', this)">
 
-    <br><br>
+</span>
+
+</div>
+
+    <div class="password-box">
+
+<input
+type="password"
+id="confirmPassword"
+placeholder="Confirm Password">
+
+<span
+class="toggle-password"
+onclick="togglePassword('confirmPassword', this)">
+
+
+
+</span>
+
+</div>
 
     <button
         class="register-btn"
