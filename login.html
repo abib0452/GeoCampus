@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoCampus Login</title>
 
     <style>
@@ -12,10 +15,11 @@
 }
 
 body{
-    height:100vh;
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
+    padding:20px;
 
     background:linear-gradient(
         135deg,
@@ -27,7 +31,8 @@ body{
 
 .login-box{
 
-    width:420px;
+    width:100%;
+    max-width:420px;
 
     background:rgba(255,255,255,.65);
 
@@ -179,6 +184,54 @@ button:hover{
     text-decoration:underline;
 
 }
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width:768px){
+
+    body{
+        padding:15px;
+        align-items:flex-start;
+        justify-content:flex-start;
+    }
+
+    .login-box{
+
+    width:92%;
+
+    max-width:none;
+
+    padding:35px 25px;
+
+    border-radius:22px;
+
+}
+    h1{
+        font-size:36px;
+    }
+
+    p{
+        font-size:16px;
+    }
+
+    input{
+        height:55px;
+        font-size:17px;
+    }
+
+    button{
+        height:55px;
+        font-size:18px;
+    }
+
+    .register{
+        font-size:16px;
+    }
+
+}
+
     </style>
 </head>
 

@@ -516,14 +516,7 @@ if(userStatus === "Online"){
 
     });
 
-}else{
-
-    alert("❌ User is Outside College Campus");
-
-}
-
-        // zoom both markers
-        const bounds =
+    const bounds =
         new google.maps.LatLngBounds();
 
         bounds.extend({
@@ -542,6 +535,15 @@ if(userStatus === "Online"){
     lat: userLat,
     lng: userLon
 });
+
+}else{
+
+    alert("❌ User is Outside College Campus");
+
+}
+
+        // zoom both markers
+        
 
         // directions
        
